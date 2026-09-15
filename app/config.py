@@ -1,17 +1,11 @@
-"""
-Centralized app configuration.
-Keeping this separate means nothing else in the codebase touches
-os.environ directly - one source of truth for settings.
-"""
-from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-class Settings(BaseSettings):
-    groq_api_key: str
-    groq_model: str = "llama-3.1-8b-instant"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
-    class Config:
-        env_file = ".env"
-
-
-settings = Settings()
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY is not set in .env")
