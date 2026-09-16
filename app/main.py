@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from app.schemas import QueryRequest, AgentResponse
 from app.services.agent_service import process_query
-from app.exceptions import OutOfScopeError, LLMTimeoutError, LLMParsingError
+from app.exceptions import OutOfScopeError, LLMTimeoutError, LLMParsingError, LLMServiceError
 
 app = FastAPI(title="Micro AI Agent")
 
@@ -25,6 +25,16 @@ def analyze(request: QueryRequest):
         return JSONResponse(
             status_code=422,
             content=AgentResponse(success=False, data=None, message=str(e)).model_dump(),
+        )
+    except LLMServiceError as e:
+        return JSONResponse(
+            status_code=502,
+            content=AgentResponse(success=False, data=None, message=str(e)).model_dump(),
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=500,
+            content=AgentResponse(success=False, data=None, message="Internal server error.").model_dump(),
         )
 
 @app.get("/")

@@ -1,7 +1,7 @@
 from openai import OpenAI, APITimeoutError, APIError, RateLimitError
 from app.config import GROQ_API_KEY, GROQ_MODEL, GROQ_BASE_URL
 from app.services.guardrails import validate_input, parse_llm_output
-from app.exceptions import LLMTimeoutError
+from app.exceptions import LLMTimeoutError, LLMServiceError
 from app.schemas import ExtractedInfo
 
 client = OpenAI(api_key=GROQ_API_KEY, base_url=GROQ_BASE_URL)
@@ -38,7 +38,7 @@ def process_query(user_query: str) -> ExtractedInfo:
     except APITimeoutError:
         raise LLMTimeoutError("The request to the LLM timed out.")
     except APIError as e:
-        raise LLMTimeoutError(f"LLM API error: {e}")
+        raise LLMServiceError(f"LLM API error: {e}")
 
     raw_output = response.choices[0].message.content.strip()
     return parse_llm_output(raw_output)

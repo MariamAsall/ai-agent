@@ -6,3 +6,6 @@ class LLMTimeoutError(Exception):
 
 class LLMParsingError(Exception):
     pass
+
+class LLMServiceError(Exception):
+    pass

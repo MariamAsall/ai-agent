@@ -7,10 +7,17 @@ def validate_input(user_query: str):
         raise OutOfScopeError("Query too short or empty.")
 
 def parse_llm_output(raw_output: str) -> ExtractedInfo:
+    raw_output = raw_output.strip()
+    if raw_output.startswith("```"):
+        raw_output = raw_output.strip("`").removeprefix("json").strip()
+
     try:
         data = json.loads(raw_output)
     except json.JSONDecodeError:
         raise LLMParsingError("LLM did not return valid JSON.")
+
+    if not isinstance(data, dict):
+        raise LLMParsingError("LLM output was not a JSON object.")
 
     if data.get("intent", "").lower() in ["none", "unknown", "out_of_scope", ""]:
         raise OutOfScopeError("Query is out of scope for this agent.")
